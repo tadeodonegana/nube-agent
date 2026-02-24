@@ -60,14 +60,17 @@ NEVER use markdown syntax (**, ##, ```, [], -, *).
 Use line breaks and indentation for structure.
 Use UPPERCASE or "quotes" for emphasis.
 Use user language for all store content.
-Summarize data concisely instead of dumping raw JSON."""
+Summarize data concisely instead of dumping raw JSON.
+IMPORTANT: All store data is in the Tiendanube API. NEVER use grep, glob, ls, or \
+read_file to look for store data. ALWAYS use the API tools provided to you."""
 
 SUBAGENTS = [
     {
         "name": "catalog-manager",
         "description": (
-            "Manage the product catalog: list, view, create, update, and delete "
-            "products, categories, variants, and images."
+            "Manages the product catalog via the Tiendanube API: list, view, create, "
+            "update, and delete products, categories, variants, and images. "
+            "Use when the user asks about products, stock, prices, categories, or images."
         ),
         "system_prompt": (
             f"You are the catalog manager for a Tiendanube store.\n{_PLAIN_TEXT_RULES}\n\n"
@@ -85,12 +88,14 @@ SUBAGENTS = [
             bulk_update_stock_price,
             list_images, add_image, update_image, delete_image,
         ],
-        "skills": ["skills/product-management/", "skills/category-management/"],
+        "skills": ["skills/product-management/", "skills/category-management/", "skills/troubleshooting/"],
     },
     {
         "name": "order-manager",
         "description": (
-            "Manage orders: list, view, update notes, close, reopen, and cancel orders."
+            "Manages orders via the Tiendanube API: list, view, update notes, close, "
+            "reopen, and cancel orders. Use when the user asks about orders, sales, "
+            "or shipping status."
         ),
         "system_prompt": (
             f"You are the order manager for a Tiendanube store.\n{_PLAIN_TEXT_RULES}\n\n"
@@ -102,12 +107,13 @@ SUBAGENTS = [
         "tools": [
             list_orders, get_order, update_order, close_order, open_order, cancel_order,
         ],
-        "skills": ["skills/order-management/"],
+        "skills": ["skills/order-management/", "skills/troubleshooting/"],
     },
     {
         "name": "customer-manager",
         "description": (
-            "Manage customers: list, search, view, create, and update customer profiles."
+            "Manages customers via the Tiendanube API: list, search, view, create, and "
+            "update customer profiles. Use when the user asks about customers or contacts."
         ),
         "system_prompt": (
             f"You are the customer manager for a Tiendanube store.\n{_PLAIN_TEXT_RULES}\n\n"
@@ -119,13 +125,14 @@ SUBAGENTS = [
         "tools": [
             list_customers, get_customer, create_customer, update_customer,
         ],
-        "skills": ["skills/customer-management/"],
+        "skills": ["skills/customer-management/", "skills/troubleshooting/"],
     },
     {
         "name": "marketing-manager",
         "description": (
-            "Manage marketing: discount coupons (create, update, delete) "
-            "and abandoned checkout recovery."
+            "Manages marketing via the Tiendanube API: discount coupons (create, update, "
+            "delete) and abandoned checkout recovery. Use when the user asks about "
+            "coupons, discounts, promotions, or abandoned carts."
         ),
         "system_prompt": (
             f"You are the marketing manager for a Tiendanube store.\n{_PLAIN_TEXT_RULES}\n\n"
@@ -138,13 +145,14 @@ SUBAGENTS = [
             list_coupons, get_coupon, create_coupon, update_coupon, delete_coupon,
             list_abandoned_checkouts, get_abandoned_checkout,
         ],
-        "skills": ["skills/coupon-management/", "skills/abandoned-checkouts/"],
+        "skills": ["skills/coupon-management/", "skills/abandoned-checkouts/", "skills/troubleshooting/"],
     },
     {
         "name": "content-manager",
         "description": (
-            "Manage content pages: list, view, create, update, and delete "
-            "static pages (About Us, FAQ, Terms, etc.)."
+            "Manages content pages via the Tiendanube API: list, view, create, update, "
+            "and delete static pages (About Us, FAQ, Terms, etc.). Use when the user "
+            "asks about pages or site content."
         ),
         "system_prompt": (
             f"You are the content manager for a Tiendanube store.\n{_PLAIN_TEXT_RULES}\n\n"
@@ -156,6 +164,6 @@ SUBAGENTS = [
         "tools": [
             list_pages, get_page, create_page, update_page, delete_page,
         ],
-        "skills": ["skills/page-management/"],
+        "skills": ["skills/page-management/", "skills/troubleshooting/"],
     },
 ]

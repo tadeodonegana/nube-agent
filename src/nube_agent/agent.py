@@ -40,7 +40,7 @@ def build_agent():
         model=MODEL,
         tools=[get_store_info],
         system_prompt=load_system_prompt(),
-        skills=["skills/store-overview/"],
+        skills=["skills/store-overview/", "skills/troubleshooting/"],
         subagents=SUBAGENTS,
         backend=_make_backend,
         store=store,
