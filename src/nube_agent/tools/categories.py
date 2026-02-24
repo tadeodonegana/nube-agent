@@ -1,4 +1,4 @@
-from nube_agent.api import parse_json, request, to_json
+from nube_agent.api import parse_json, request, store_language, to_json
 
 
 def list_categories(page: int = 1, per_page: int = 50) -> str:
@@ -27,21 +27,22 @@ def get_category(category_id: int) -> str:
     return to_json(result)
 
 
-def create_category(name_es: str, parent_id: int = 0, description_es: str = "") -> str:
+def create_category(name: str, parent_id: int = 0, description: str = "") -> str:
     """Create a new category in the store.
 
     Args:
-        name_es: Category name in Spanish.
+        name: Category name in the store's language.
         parent_id: Optional parent category ID for subcategories (0 for top-level).
-        description_es: Optional description in Spanish.
+        description: Optional description in the store's language.
 
     Returns the created category data.
     """
-    body: dict = {"name": {"es": name_es}}
+    lang = store_language()
+    body: dict = {"name": {lang: name}}
     if parent_id != 0:
         body["parent"] = parent_id
-    if description_es:
-        body["description"] = {"es": description_es}
+    if description:
+        body["description"] = {lang: description}
     result = request("POST", "/categories", json_body=body)
     return to_json(result)
 
@@ -52,8 +53,8 @@ def update_category(category_id: int, updates_json: str) -> str:
     Args:
         category_id: The numeric category ID to update.
         updates_json: JSON string with fields to update.
-            Supported fields: name ({"es": "..."}), description ({"es": "..."}),
-            parent (int), handle (str).
+            Supported fields: name ({lang: "..."}), description ({lang: "..."}),
+            parent (int), handle (str), where lang is the store's language key.
             Example: '{"name": {"es": "New Name"}}'
 
     Returns the updated category data.

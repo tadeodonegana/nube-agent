@@ -2,6 +2,7 @@ import json
 
 import respx
 
+from nube_agent import api as api_mod
 from nube_agent.config import BASE_URL
 from nube_agent.tools.categories import (
     create_category,
@@ -10,6 +11,8 @@ from nube_agent.tools.categories import (
     list_categories,
     update_category,
 )
+
+STORE_RESPONSE = {"main_language": "es", "country": "AR"}
 
 
 class TestListCategories:
@@ -36,18 +39,36 @@ class TestGetCategory:
 
 
 class TestCreateCategory:
+    def setup_method(self):
+        api_mod._store_info.cache_clear()
+
     @respx.mock
     def test_simple_create(self):
-        respx.post(f"{BASE_URL}/categories").respond(201, json={"id": 10})
+        respx.get(f"{BASE_URL}/store").respond(200, json=STORE_RESPONSE)
+        route = respx.post(f"{BASE_URL}/categories").respond(201, json={"id": 10})
         result = json.loads(create_category("Ropa"))
         assert result["id"] == 10
+        body = json.loads(route.calls[0].request.content)
+        assert body["name"] == {"es": "Ropa"}
 
     @respx.mock
     def test_with_parent(self):
+        respx.get(f"{BASE_URL}/store").respond(200, json=STORE_RESPONSE)
         route = respx.post(f"{BASE_URL}/categories").respond(201, json={"id": 11})
         create_category("Remeras", parent_id=10)
         body = json.loads(route.calls[0].request.content)
         assert body["parent"] == 10
+
+    @respx.mock
+    def test_create_uses_dynamic_language(self):
+        respx.get(f"{BASE_URL}/store").respond(
+            200, json={"main_language": "pt", "country": "BR"}
+        )
+        route = respx.post(f"{BASE_URL}/categories").respond(201, json={"id": 12})
+        create_category("Roupas", description="Todas as roupas")
+        body = json.loads(route.calls[0].request.content)
+        assert body["name"] == {"pt": "Roupas"}
+        assert body["description"] == {"pt": "Todas as roupas"}
 
 
 class TestUpdateCategory:

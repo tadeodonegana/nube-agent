@@ -1,4 +1,4 @@
-from nube_agent.api import parse_json, request, to_json
+from nube_agent.api import parse_json, request, store_language, to_json
 
 
 def list_products(page: int = 1, per_page: int = 10) -> str:
@@ -29,24 +29,25 @@ def get_product(product_id: int) -> str:
 
 
 def create_product(
-    name_es: str,
+    name: str,
     variants_json: str = "",
-    description_es: str = "",
+    description: str = "",
     attributes_json: str = "",
     published: bool = True,
 ) -> str:
     """Create a new product in the store.
 
     Args:
-        name_es: Product name in Spanish.
+        name: Product name in the store's language.
         variants_json: Optional JSON string with a list of variant objects.
             Each variant can have: price, stock, sku, weight, width, height, depth,
-            and values (list of {"es": "value"} matching the product attributes).
+            and values (list of {lang: "value"} matching the product attributes,
+            where lang is the store's language key).
             Example without options: '[{"price": "100.00", "stock": 10}]'
             Example with options:
             '[{"price": "100.00", "stock": 10, "values": [{"es": "S"}, {"es": "Rojo"}]}]'
             If empty, a single default variant is created.
-        description_es: Optional product description in Spanish (HTML allowed).
+        description: Optional product description in the store's language (HTML allowed).
         attributes_json: Optional JSON string with a list of attribute name objects.
             These define variant option names (e.g., Talla, Color). Max 3.
             Example: '[{"es": "Talla"}, {"es": "Color"}]'
@@ -56,12 +57,13 @@ def create_product(
 
     Returns the created product data.
     """
+    lang = store_language()
     body: dict = {
-        "name": {"es": name_es},
+        "name": {lang: name},
         "published": published,
     }
-    if description_es:
-        body["description"] = {"es": description_es}
+    if description:
+        body["description"] = {lang: description}
     if attributes_json:
         parsed = parse_json(attributes_json, "attributes_json")
         if isinstance(parsed, str):
@@ -82,8 +84,9 @@ def update_product(product_id: int, updates_json: str) -> str:
     Args:
         product_id: The numeric product ID to update.
         updates_json: JSON string with fields to update.
-            Supported fields: name ({"es": "..."}), description ({"es": "..."}),
-            published (bool), tags, brand, handle, attributes (list of {"es": "..."}).
+            Supported fields: name ({lang: "..."}), description ({lang: "..."}),
+            published (bool), tags, brand, handle, attributes (list of {lang: "..."}),
+            where lang is the store's language key.
             Example: '{"name": {"es": "New Name"}, "published": false}'
             To add variant options: '{"attributes": [{"es": "Talla"}]}'
             IMPORTANT: After adding attributes, update existing variants to set

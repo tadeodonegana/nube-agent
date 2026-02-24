@@ -11,7 +11,7 @@ description: >
 ## Product Structure
 
 A product in Tiendanube has:
-- **name** and **description**: Multilingual objects (`{"es": "..."}`). Always use `es` key for Spanish.
+- **name** and **description**: Multilingual objects (keyed by the store's language, e.g. `{"es": "..."}` for Spanish stores).
 - **attributes**: List of option names (e.g., Talla, Color). Max 3 per product.
 - **variants**: Every product has at least one variant. Prices and stock live on variants, not on the product itself.
 - **images**: Attached via the images endpoint, not inline on the product.
@@ -28,7 +28,7 @@ A product in Tiendanube has:
 
 ## Attributes and Variants (CRITICAL)
 
-Products have an `attributes` array that defines option names (e.g., `[{"es": "Talla"}, {"es": "Color"}]`).
+Products have an `attributes` array that defines option names (e.g., `[{lang: "Talla"}, {lang: "Color"}]` where lang is the store's language key).
 Each variant has a `values` array. **The number of values MUST equal the number of attributes.**
 
 - Product with 0 attributes → variants must have 0 values (`values: []`)

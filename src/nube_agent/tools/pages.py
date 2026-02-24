@@ -1,17 +1,17 @@
-from nube_agent.api import parse_json, request, to_json
+from nube_agent.api import parse_json, request, store_locale, to_json
 
 
-def list_pages(page: int = 1, per_page: int = 50) -> str:
+def list_pages(page: int = 1, per_page: int = 20) -> str:
     """List all content pages in the store.
 
     Args:
         page: Page number (default 1).
-        per_page: Pages per page, max 200 (default 50).
+        per_page: Pages per page, max 20 (default 20).
 
     Returns a JSON list of pages with id, name, handle,
     published status, and timestamps.
     """
-    params = {"page": max(1, page), "per_page": max(1, min(per_page, 200))}
+    params = {"page": max(1, page), "per_page": max(1, min(per_page, 20))}
     result = request("GET", "/pages", params=params)
     return to_json(result)
 
@@ -30,37 +30,37 @@ def get_page(page_id: int) -> str:
 
 
 def create_page(
-    title_es: str,
-    content_es: str,
+    title: str,
+    content: str,
     published: bool = True,
-    seo_title_es: str = "",
-    seo_description_es: str = "",
-    seo_handle_es: str = "",
+    seo_title: str = "",
+    seo_description: str = "",
+    seo_handle: str = "",
 ) -> str:
     """Create a new content page in the store.
 
     Args:
-        title_es: Page title in Spanish.
-        content_es: Page content in Spanish (HTML allowed).
+        title: Page title in the store's language.
+        content: Page content in the store's language (HTML allowed).
         published: Whether the page is visible on the store (default true).
-        seo_title_es: Optional SEO title for search engines.
-        seo_description_es: Optional SEO meta description.
-        seo_handle_es: Optional URL slug (e.g., "about-us"). Auto-generated if empty.
+        seo_title: Optional SEO title for search engines.
+        seo_description: Optional SEO meta description.
+        seo_handle: Optional URL slug (e.g., "about-us"). Auto-generated if empty.
 
     Returns the created page data.
     """
-    i18n: dict = {
-        "es": {
-            "title": title_es,
-            "content": content_es,
-        }
+    locale = store_locale()
+    locale_data: dict = {
+        "title": title,
+        "content": content,
     }
-    if seo_title_es:
-        i18n["es"]["seo_title"] = seo_title_es
-    if seo_description_es:
-        i18n["es"]["seo_description"] = seo_description_es
-    if seo_handle_es:
-        i18n["es"]["seo_handle"] = seo_handle_es
+    if seo_title:
+        locale_data["seo_title"] = seo_title
+    if seo_description:
+        locale_data["seo_description"] = seo_description
+    if seo_handle:
+        locale_data["seo_handle"] = seo_handle
+    i18n = {locale: locale_data}
 
     body = {
         "page": {
@@ -78,14 +78,29 @@ def update_page(page_id: int, updates_json: str) -> str:
     Args:
         page_id: The numeric page ID.
         updates_json: JSON string with fields to update.
-            Supported fields: title (str), content (str — HTML allowed).
+            Supported fields: title (str), content (str — HTML allowed),
+            published (bool), seo_title (str), seo_description (str),
+            seo_handle (str).
             Example: '{"title": "Sobre Nosotros", "content": "<p>Somos...</p>"}'
 
     Returns the updated page data.
     """
-    body = parse_json(updates_json, "updates_json")
-    if isinstance(body, str):
-        return body
+    parsed = parse_json(updates_json, "updates_json")
+    if isinstance(parsed, str):
+        return parsed
+
+    locale = store_locale()
+    locale_data: dict = {}
+    for key in ("title", "content", "seo_title", "seo_description", "seo_handle"):
+        if key in parsed:
+            locale_data[key] = parsed[key]
+
+    body: dict = {"page": {}}
+    if locale_data:
+        body["page"]["i18n"] = {locale: locale_data}
+    if "published" in parsed:
+        body["page"]["publish"] = parsed["published"]
+
     result = request("PUT", f"/pages/{page_id}", json_body=body)
     return to_json(result)
 

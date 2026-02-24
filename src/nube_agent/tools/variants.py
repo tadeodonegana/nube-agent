@@ -40,7 +40,8 @@ def create_variant(product_id: int, variant_json: str) -> str:
         variant_json: JSON string with variant data.
             Fields: price (str), stock (int), sku (str), weight (str),
             width (str), height (str), depth (str),
-            values (list of {"es": "value"} — must match product attributes count).
+            values (list of {lang: "value"} — must match product attributes count,
+            where lang is the store's language key).
             Example (1 attribute): '{"price": "150.00", "stock": 5, "values": [{"es": "L"}]}'
             Example (2 attributes):
             '{"price": "150.00", "stock": 5, "values": [{"es": "Rojo"}, {"es": "L"}]}'
@@ -63,7 +64,8 @@ def update_variant(product_id: int, variant_id: int, updates_json: str) -> str:
         updates_json: JSON string with fields to update.
             Supported: price, stock, sku, weight, width, height, depth, values.
             Example: '{"price": "200.00", "stock": 20}'
-            To set option values: '{"values": [{"es": "M"}]}'
+            To set option values: '{"values": [{lang: "M"}]}'
+            where lang is the store's language key.
 
     Returns the updated variant data.
     """

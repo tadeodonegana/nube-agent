@@ -1,5 +1,6 @@
 import json
 import time
+from functools import lru_cache
 from typing import Any
 
 import httpx
@@ -76,6 +77,28 @@ def to_json(result: Any) -> str:
     if isinstance(result, (dict, list)):
         return json.dumps(result, ensure_ascii=False)
     return str(result)
+
+
+@lru_cache(maxsize=1)
+def _store_info() -> dict:
+    """Fetch and cache the store info from the API."""
+    raw = request("GET", "/store")
+    if isinstance(raw, dict):
+        return raw
+    return {}
+
+
+def store_language() -> str:
+    """Return the store's main language code (e.g. 'es', 'pt', 'en')."""
+    return _store_info().get("main_language", "es")
+
+
+def store_locale() -> str:
+    """Return the store's i18n locale key (e.g. 'es_AR', 'pt_BR')."""
+    info = _store_info()
+    lang = info.get("main_language", "es")
+    country = info.get("country", "")
+    return f"{lang}_{country}" if country else lang
 
 
 def parse_json(raw: str, label: str = "input") -> dict | list | str:

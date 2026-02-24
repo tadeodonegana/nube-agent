@@ -10,7 +10,7 @@ description: >
 ## Category Structure
 
 A category has:
-- **name** and **description**: Multilingual objects (`{"es": "..."}`).
+- **name** and **description**: Multilingual objects (keyed by the store's language, e.g. `{"es": "..."}` for Spanish stores).
 - **parent**: Optional parent category ID for nesting (subcategories).
 - **handle**: URL-friendly slug, auto-generated from name.
 - **subcategories**: Count of child categories.
@@ -23,7 +23,7 @@ A category has:
 
 ## Multilingual Names
 
-Always provide names using the `{"es": "..."}` format for Spanish.
+Names are keyed by the store's language. The `create_category` tool handles this automatically.
 
 ## Product Assignment
 

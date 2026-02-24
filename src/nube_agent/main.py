@@ -170,10 +170,11 @@ def format_json_debug(data: str, max_len: int = 300) -> str:
 def fetch_store_summary() -> tuple[str, str, str]:
     """Fetch store name, domain, and currency for the banner."""
     try:
-        from nube_agent.api import request
+        from nube_agent.api import request, store_language
         result = request("GET", "/store")
         if isinstance(result, dict):
-            name = result.get("name", {}).get("es", "Unknown")
+            lang = store_language()
+            name = result.get("name", {}).get(lang, "Unknown")
             domain = result.get("original_domain", "unknown")
             currency = result.get("main_currency", "?")
             return name, domain, currency

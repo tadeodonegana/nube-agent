@@ -20,7 +20,7 @@ A page in Tiendanube has:
 ## Key Rules
 
 1. **Content supports HTML** — you can include formatted text, links, images, etc.
-2. **All text fields are multilingual** — always use the `es` key for Spanish.
+2. **All text fields are multilingual** — the store's language is detected automatically.
 3. **Handle is the URL slug** — auto-generated from title if not specified.
 
 ## Common Pages
@@ -37,6 +37,6 @@ A page in Tiendanube has:
 
 - **List all pages**: `list_pages()`
 - **View a page**: `get_page(id)` — returns full HTML content.
-- **Create a page**: `create_page(title_es, content_es, ...)` — supports SEO fields.
+- **Create a page**: `create_page(title, content, ...)` — supports SEO fields.
 - **Update content**: `update_page(id, '{"title": "...", "content": "<p>...</p>"}')`
 - **Delete page**: `delete_page(id)`

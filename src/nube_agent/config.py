@@ -10,7 +10,7 @@ TIENDANUBE_STORE_ID = os.environ.get("TIENDANUBE_STORE_ID", "")
 
 MODEL = "openai:gpt-4o-mini"
 USER_AGENT = os.environ.get("USER_AGENT", "Nube Agent")
-BASE_URL = f"https://api.tiendanube.com/v1/{TIENDANUBE_STORE_ID}"
+BASE_URL = f"https://api.tiendanube.com/2025-03/{TIENDANUBE_STORE_ID}"
 
 
 def validate() -> None:
