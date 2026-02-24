@@ -97,6 +97,16 @@ Or just type naturally — the agent understands free-form requests like "create
 | Abandoned Checkouts | list, get | 2 |
 | Pages | list, get, create, update, delete | 5 |
 
+## API Permissions
+
+Nube Agent requires your Tiendanube application to have the correct OAuth scopes for each domain it interacts with. If your app is missing scopes, some tools will return **403 Forbidden** errors.
+
+To update scopes:
+
+1. Go to **https://partners.tiendanube.com/applications/update/{app_id}** (replace `{app_id}` with your application ID)
+2. Enable the required scopes
+3. **Reinstall the app** on the store — updating scopes alone is not enough, the store must re-authorize for the new scopes to take effect
+
 ## Architecture
 
 ```
