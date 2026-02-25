@@ -2,22 +2,10 @@ from deepagents import create_deep_agent
 from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
-
 from nube_agent.config import MODEL
 from nube_agent.prompts import load_system_prompt
 from nube_agent.subagents import SUBAGENTS
 from nube_agent.tools.store import get_store_info
-
-DESTRUCTIVE_TOOLS = {
-    "delete_product",
-    "delete_category",
-    "delete_variant",
-    "delete_image",
-    "cancel_order",
-    "delete_coupon",
-    "delete_page",
-}
-
 
 def _make_backend(runtime):
     """Create a CompositeBackend that routes /memories/ to the store."""
@@ -45,6 +33,5 @@ def build_agent():
         backend=_make_backend,
         store=store,
         checkpointer=checkpointer,
-        interrupt_on={name: True for name in DESTRUCTIVE_TOOLS},
     )
     return agent

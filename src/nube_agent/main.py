@@ -17,8 +17,8 @@ from nube_agent.config import MODEL, validate
 
 VERSION = version("nube-agent")
 
-BLUE = "\033[38;2;2;156;220m"       
-DARK = "\033[38;2;44;51;87m"        
+BLUE = "\033[38;2;2;156;220m"
+DARK = "\033[38;2;44;51;87m"
 WHITE = "\033[38;2;255;255;255m"
 DIM = "\033[2m"
 BOLD = "\033[1m"
@@ -310,52 +310,77 @@ def stream_response(agent, input_value, config, *, debug=False):
         return False
 
 
+def _prompt_decisions(action_requests):
+    """Prompt the user for approve/reject on each action request."""
+    decisions = []
+    for action in action_requests:
+        tool_name = action.get("name", "unknown")
+        tool_args = action.get("args", {})
+
+        print(f"\n  {YELLOW}Destructive action requested:{RESET}")
+        print(f"  {WHITE}{tool_name}{RESET}")
+        if tool_args:
+            args_str = json.dumps(tool_args, ensure_ascii=False, indent=2)
+            for line in args_str.split("\n"):
+                print(f"    {DIM}{line}{RESET}")
+
+        try:
+            answer = input(
+                f"  {YELLOW}Approve? (y)es / (n)o: {RESET}"
+            ).strip().lower()
+        except (KeyboardInterrupt, EOFError):
+            answer = "n"
+
+        if answer in ("y", "yes", "s", "si"):
+            decisions.append({"type": "approve"})
+        else:
+            decisions.append({
+                "type": "reject",
+                "message": "User rejected this action.",
+            })
+    return decisions
+
+
 def handle_interrupts(agent, config, *, debug=False):
     """Check for pending HITL interrupts and prompt the user for decisions.
 
-    Returns True if processing should continue (approve/reject handled),
-    False if there were no interrupts.
+    The HITL middleware sends an HITLRequest with ``action_requests`` (list of
+    ActionRequest dicts, each with ``name``, ``args``, and optional
+    ``description``).  We display each action and collect approve/reject
+    decisions, then resume the graph with ``Command(resume=...)``.
+
+    When multiple interrupts are pending (e.g. from different sub-agents),
+    we key the resume dict by interrupt ID — required by LangGraph when
+    there are >1 pending interrupts.
+
+    Returns True if an interrupt was handled, False if there were none.
     """
     state = agent.get_state(config)
     if not state.interrupts:
         return False
 
+    # Collect decisions keyed by interrupt ID (official deepagents pattern).
+    # Each interrupt maps to {"decisions": [...]}.
+    hitl_response = {}
     for intr in state.interrupts:
         request_data = intr.value
         if not isinstance(request_data, dict):
             continue
 
-        tool_calls = request_data.get("tool_calls", [])
-        if not tool_calls:
+        action_requests = request_data.get("action_requests", [])
+        if not action_requests:
             continue
 
-        decisions = []
-        for tc in tool_calls:
-            tool_name = tc.get("name", "unknown")
-            tool_args = tc.get("args", {})
+        decisions = _prompt_decisions(action_requests)
+        if decisions:
+            hitl_response[intr.id] = {"decisions": decisions}
 
-            print(f"\n  {YELLOW}Destructive action requested:{RESET}")
-            print(f"  {WHITE}{tool_name}{RESET}")
-            if tool_args:
-                args_str = json.dumps(tool_args, ensure_ascii=False, indent=2)
-                for line in args_str.split("\n"):
-                    print(f"    {DIM}{line}{RESET}")
+    if not hitl_response:
+        return False
 
-            try:
-                answer = input(f"  {YELLOW}Approve? (y)es / (n)o: {RESET}").strip().lower()
-            except (KeyboardInterrupt, EOFError):
-                answer = "n"
-
-            if answer in ("y", "yes", "s", "si"):
-                decisions.append({"type": "approve"})
-            else:
-                decisions.append({
-                    "type": "reject",
-                    "message": "User rejected this action.",
-                })
-
-    # Resume the agent with the decisions
-    resume_value = Command(resume={"decisions": decisions})
+    # Resume: use interrupt-ID-keyed map for robustness with multiple
+    # concurrent interrupts. Also works fine for single interrupts.
+    resume_value = Command(resume=hitl_response)
     stream_response(agent, resume_value, config, debug=debug)
 
     # Check for further interrupts (in case of chained destructive calls)

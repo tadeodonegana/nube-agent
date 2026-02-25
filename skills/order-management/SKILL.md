@@ -30,7 +30,7 @@ An order in Tiendanube has:
 1. **Orders are read-heavy.** You can list, view, close, reopen, and cancel — but you cannot change products or totals after creation.
 2. **owner_note is the only free-text field** you can update via PUT.
 3. **Cancelling an order** can optionally restock items and notify the customer.
-4. **Always confirm with the user before cancelling** — it's a significant action.
+4. **Cancelling is gated by the system** — just call cancel_order directly and the user will be prompted for approval automatically.
 
 ## Filtering Orders
 

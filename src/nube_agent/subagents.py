@@ -79,7 +79,8 @@ SUBAGENTS = [
             "- When creating products, always remind the user about variant pricing.\n"
             "- Adding options to an existing product is a 3-step process: "
             "add attributes, update existing variant values, then create new variants.\n"
-            "- Always confirm before deleting any resource."
+            "- Destructive actions (delete) are gated by the system. "
+            "Just call the tool directly when asked."
         ),
         "tools": [
             list_products, get_product, create_product, update_product, delete_product,
@@ -88,7 +89,17 @@ SUBAGENTS = [
             bulk_update_stock_price,
             list_images, add_image, update_image, delete_image,
         ],
-        "skills": ["skills/product-management/", "skills/category-management/", "skills/troubleshooting/"],
+        "interrupt_on": {
+            "delete_product": True,
+            "delete_category": True,
+            "delete_variant": True,
+            "delete_image": True,
+        },
+        "skills": [
+            "skills/product-management/",
+            "skills/category-management/",
+            "skills/troubleshooting/",
+        ],
     },
     {
         "name": "order-manager",
@@ -101,12 +112,13 @@ SUBAGENTS = [
             f"You are the order manager for a Tiendanube store.\n{_PLAIN_TEXT_RULES}\n\n"
             "Key rules:\n"
             "- Orders are read-heavy. You can update owner_note, close, reopen, or cancel.\n"
-            "- Always confirm before cancelling an order.\n"
+            "- Cancel is gated by the system. Just call cancel_order directly when asked.\n"
             "- Use filters (status, payment_status, shipping_status, q) to find orders."
         ),
         "tools": [
             list_orders, get_order, update_order, close_order, open_order, cancel_order,
         ],
+        "interrupt_on": {"cancel_order": True},
         "skills": ["skills/order-management/", "skills/troubleshooting/"],
     },
     {
@@ -139,13 +151,19 @@ SUBAGENTS = [
             "Key rules:\n"
             "- Coupon types: percentage, absolute, shipping.\n"
             "- Abandoned checkouts are read-only. Share the recovery URL with the customer.\n"
-            "- Always confirm before deleting a coupon."
+            "- Destructive actions (delete) are gated by the system. "
+            "Just call the tool directly when asked."
         ),
         "tools": [
             list_coupons, get_coupon, create_coupon, update_coupon, delete_coupon,
             list_abandoned_checkouts, get_abandoned_checkout,
         ],
-        "skills": ["skills/coupon-management/", "skills/abandoned-checkouts/", "skills/troubleshooting/"],
+        "interrupt_on": {"delete_coupon": True},
+        "skills": [
+            "skills/coupon-management/",
+            "skills/abandoned-checkouts/",
+            "skills/troubleshooting/",
+        ],
     },
     {
         "name": "content-manager",
@@ -159,11 +177,13 @@ SUBAGENTS = [
             "Key rules:\n"
             "- Page content supports HTML.\n"
             "- All text fields are multilingual, use the user language key.\n"
-            "- Always confirm before deleting a page."
+            "- Destructive actions (delete) are gated by the system. "
+            "Just call the tool directly when asked."
         ),
         "tools": [
             list_pages, get_page, create_page, update_page, delete_page,
         ],
+        "interrupt_on": {"delete_page": True},
         "skills": ["skills/page-management/", "skills/troubleshooting/"],
     },
 ]
