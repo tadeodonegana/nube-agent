@@ -378,8 +378,6 @@ def handle_interrupts(agent, config, *, debug=False):
     if not hitl_response:
         return False
 
-    # Resume: use interrupt-ID-keyed map for robustness with multiple
-    # concurrent interrupts. Also works fine for single interrupts.
     resume_value = Command(resume=hitl_response)
     stream_response(agent, resume_value, config, debug=debug)
 

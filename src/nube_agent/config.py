@@ -8,7 +8,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 TIENDANUBE_ACCESS_TOKEN = os.environ.get("TIENDANUBE_ACCESS_TOKEN", "")
 TIENDANUBE_STORE_ID = os.environ.get("TIENDANUBE_STORE_ID", "")
 
-MODEL = "openai:gpt-4o-mini"
+MODEL = "openai:gpt-4o"
 USER_AGENT = os.environ.get("USER_AGENT", "Nube Agent")
 BASE_URL = f"https://api.tiendanube.com/2025-03/{TIENDANUBE_STORE_ID}"
 
