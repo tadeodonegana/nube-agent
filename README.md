@@ -2,6 +2,8 @@
 
 CLI conversational agent for managing [Nuvemshop/Tiendanube](https://www.tiendanube.com/) online stores using natural language.
 
+![Nube Agent](./nube-agent.png)
+
 > **Disclaimer:** This is NOT an official Nuvemshop/Tiendanube product. It is an independent project that uses the public Tiendanube API.
 
 ## Features
